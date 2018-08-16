@@ -4,7 +4,7 @@ new Server()
   .connect(brokerUri)
   .then(server => {
 
-    const methods = {
+    const procedures = {
       "add": {
         options: {durable: false},
         handler: onAdd
@@ -36,8 +36,8 @@ new Server()
     }
 
     // Register remote procedures
-    for(let key in methods) {
-      server.register(key, methods[key].options || {}, methods[key].handler);
+    for(let key in procedures) {
+      server.register(key, procedures[key].options || {}, procedures[key].handler);
     }
   })
 
@@ -48,7 +48,6 @@ new Consumer()
   .connect(brokerUri)
   .then(consumer => {
 
-    // Call remote procedures
     consumer.call("add", [3, 5], (res) => {
       console.log("Consumer:add: Got response", res)
     })
