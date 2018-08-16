@@ -4,16 +4,41 @@ new Server()
   .connect(brokerUri)
   .then(server => {
 
-    // Register remote procedures
-    server.register("add", {}, (args, reply) => {
+    const methods = {
+      "add": {
+        options: {durable: false},
+        handler: onAdd
+      },
+      "divide": {
+        options: {durable: false},
+        handler: onDivide
+      },
+      "slugify": {
+        handler: onSlugify
+      }
+    };
+
+    function onAdd(args, reply) {
       let result = args[0] + args[1];
       return reply(result);
-    })
+    }
 
-    server.register("slugify", {}, (string, reply) => {
-      let result = string.split(" ").join("-").toLowerCase();
+    function onDivide(args, reply) {
+      let result = args.divisor / args.divident;
+      return reply({
+        result: result
+      });
+    }
+
+    function onSlugify(args, reply) {
+      let result = args.split(" ").join("-").toLowerCase();
       return reply(result);
-    })
+    }
+
+    // Register remote procedures
+    for(let key in methods) {
+      server.register(key, methods[key].options || {}, methods[key].handler);
+    }
   })
 
 
@@ -26,6 +51,13 @@ new Consumer()
     // Call remote procedures
     consumer.call("add", [3, 5], (res) => {
       console.log("Consumer:add: Got response", res)
+    })
+
+    consumer.call("divide", {
+      divisor: 100,
+      divident: 5
+    }, (res) => {
+      console.log("Consumer:divide: Got response", res)
     })
 
     consumer.call("slugify", "Hello there you", (res) => {
