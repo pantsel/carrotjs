@@ -1,49 +1,35 @@
-const ISC = require('./lib/isc');
-let qs = [
-  {
-    name: 'q1',
-    options: {
-      durable: false
-    }
-  },
-  {
-    name: 'q2',
-    options: {
-      durable: false
-    }
-  },
-  {
-    name: 'q3',
-    options: {
-      durable: false
-    }
-  }
-];
-
+const brokerUri = `amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac`;
 const Server = require('./lib/server');
-
-Server.connect('amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac')
+new Server()
+  .connect(brokerUri)
   .then(server => {
-    server.register("test", {}, (data, next) => {
 
-      console.log("------------------------------", data)
+    // Register remote procedures
+    server.register("add", {}, (args, reply) => {
+      let result = args[0] + args[1];
+      return reply(result);
+    })
 
-      return next({
-        message: "OK"
-      })
-
+    server.register("slugify", {}, (string, reply) => {
+      let result = string.split(" ").join("-").toLowerCase();
+      return reply(result);
     })
   })
 
 
-setTimeout(()=> {
-  const Consumer = require('./lib/consumer');
+const Consumer = require('./lib/consumer');
 
-  let _consumer = new Consumer('amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac');
-  _consumer.connect().then(consumer => {
-    consumer.call("test",{text: 'Hello'}, (res) => {
-      console.log("Consumer: Got response", res)
+new Consumer()
+  .connect(brokerUri)
+  .then(consumer => {
+
+    // Call remote procedures
+    consumer.call("add", [3, 5], (res) => {
+      console.log("Consumer:add: Got response", res)
+    })
+
+    consumer.call("slugify", "Hello there you", (res) => {
+      console.log("Consumer:slugify: Got response", res)
     })
   })
-}, 1000)
 
