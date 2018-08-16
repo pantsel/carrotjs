@@ -20,55 +20,30 @@ let qs = [
   }
 ];
 
-let a = new ISC('amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac\n')
-a.connect().then(channel => {
+const Server = require('./lib/server');
 
-  // a.send({
-  //   name: 'q1',
-  //   options: {
-  //     durable: false
-  //   }
-  // },{
-  //   msg: 'test'
-  // })
+Server.connect('amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac')
+  .then(server => {
+    server.register("test", {}, (data, next) => {
 
-  // a.listenToRpcQueue();
+      console.log("------------------------------", data)
 
-  // setTimeout(() => {
-  //   a.rpc();
-  // }, 1000)
-  
-  
-  a.addUri('rpc_queue', function (channel, message) {
-    
+      return next({
+        message: "OK"
+      })
+
+    })
   })
 
-  // setTimeout(() => {
-  //   a.send({
-  //     name: 'q1',
-  //     options: {
-  //       durable: false
-  //     }
-  //   },{
-  //     msg: 'test1'
-  //   })
-  //
-  //
-  //   a.send({
-  //     name: 'q2',
-  //     options: {
-  //       durable: false
-  //     }
-  //   },{
-  //     msg: 'test1'
-  //   })
-  // },1000)
-})
 
+setTimeout(()=> {
+  const Consumer = require('./lib/consumer');
 
-//
-// ISC.connect('localhost').then(data => {
-//
-//   console.log(data)
-//
-// })
+  let _consumer = new Consumer('amqp://hxjhjrac:0R-cMo8zwkXWi5tyLq59UHyNQv0QKh3t@crocodile.rmq.cloudamqp.com/hxjhjrac');
+  _consumer.connect().then(consumer => {
+    consumer.call("test",{text: 'Hello'}, (res) => {
+      console.log("Consumer: Got response", res)
+    })
+  })
+}, 1000)
+
