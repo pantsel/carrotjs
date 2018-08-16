@@ -12,6 +12,7 @@
     "rabbitmq",
     "messaging"
   ],
+  "engines" : { "node" : ">=8.0.0" },
   "author": "Panagis Tselentis",
   "license": "ISC",
   "dependencies": {
