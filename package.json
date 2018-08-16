@@ -1,0 +1,23 @@
+{
+  "name": "rabbit-isc",
+  "version": "0.0.1",
+  "description": "Inter-service communication using RabbitMQ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "microservices",
+    "communication",
+    "rabbitmq",
+    "messaging"
+  ],
+  "author": "Panagis Tselentis",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.5.2",
+    "lodash": "^4.17.10",
+    "uuid": "^3.3.2",
+    "winston": "^3.0.0"
+  }
+}
